@@ -1,0 +1,91 @@
+version: '3'
+services:
+  match-making-api:
+    build:
+      context: ../match-making-api/.
+    depends_on:
+      - match-making-db
+      - kafka-broker
+    environment:
+      FB_STUDENT_APP_ID: 614882468961582
+      FB_STUDENT_APP_SECRET: fef3198085afd6db780566ca155cdb6d # THIS WILL BE RE-GENERATED
+      FB_INSTRUCTOR_APP_ID: 419052118866882
+      FB_INSTRUCTOR_APP_SECRET: 4ad125fa5e837b111cbccec7e9e4b800
+      AGORA_IO_VOICE_KEY: 177585088d8a42f9a8d1d5b7064f0295
+      DB_DATACENTER: datacenter1
+      DB_HOST: match-making-db
+      DB_USERNAME: match_making_user
+      DB_PASSWORD: match_making_pw
+      KEYSPACE_NAME: match_making
+      DB_PORT: 9042
+      API_PORT: 3000
+      KAFKA_BROKER: kafka-broker
+      KAFKA_PORT: 9092
+      KAFKA_CALIBRATION_TOPIC: eeg-calibration
+      KAFKA_INSTRUCTION_TOPIC: eeg-instruction
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../match-making-api/src:/app/src
+    command: npm run start
+    networks:
+      - webnet
+  
+  match-making-db:
+    image: 'bitnami/cassandra:latest'
+    environment:
+      - CASSANDRA_DATACENTER=datacenter1
+      - CASSANDRA_SEEDS=match-making-db
+      - CASSANDRA_TRANSPORT_PORT_NUMBER=7000
+      - CASSANDRA_CQL_PORT_NUMBER=9042
+      - CASSANDRA_USER=match_making_user
+      - CASSANDRA_PASSWORD_SEEDER=yes
+      - CASSANDRA_PASSWORD=match_making_pw
+    ports:
+      - "9042:9042"
+    volumes:
+      - ./database-match-making/init-scripts:/docker-entrypoint-initdb.d
+      - ./database-match-making/persistence:/bitnami
+    networks:
+      - webnet
+  
+  #eeg-ml-api:
+  #  build:
+  #    context: ../eeg-ml-api/.
+  #    dockerfile: Dockerfile
+  #  depends_on:
+  #    - kafka-broker
+  #    - spark-master
+  #    - spark-worker-1
+  #    - match-making-db
+  #  environment:
+  #    LOCAL_EXECUTION: "true"
+  #    SPARK_MASTER: spark-master
+  #    SPARK_MASTER_PORT: 7077
+  #    DB_HOST: match-making-db
+  #    DB_USERNAME: match_making_user
+  #    DB_PASSWORD: match_making_pw
+  #    KEYSPACE_NAME: match_making
+  #    DB_PORT: 9042
+  #    KAFKA_BROKER: kafka-broker
+  #    KAFKA_BROKER_PORT: 9092
+  #    KAFKA_CALIBRATION_TOPIC: eeg-calibration
+  #    KAFKA_INSTRUCTION_TOPIC: eeg-instruction
+  #    MODELS_PATH: /resources/classifiers
+  #  volumes:
+  #    - ./classifiers:/resources/classifiers/
+  #  networks:
+  #    - webnet
+
+  #container-visualizer:
+  #  image: dockersamples/visualizer:stable
+  #  ports:
+  #    - "9001:8080"
+  #  volumes:
+  #    - "/var/run/docker.sock:/var/run/docker.sock"
+  #  networks:
+  #    - webnet
+
+networks:
+  webnet:
+    driver: bridge

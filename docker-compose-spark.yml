@@ -1,0 +1,35 @@
+version: '3'
+services:
+  spark-master:
+    build:
+      context: ../eeg-ml-api/.
+      dockerfile: Dockerfile-spark-master
+    depends_on:
+      - kafka-broker
+      - match-making-db
+    ports:
+      - "8080:8080"
+      - "7077:7077"
+    environment:
+      - INIT_DAEMON_STEP=setup_spark
+    networks:
+      - webnet
+
+  spark-worker-1:
+    build:
+      context: ../eeg-ml-api/.
+      dockerfile: Dockerfile-spark-worker
+    depends_on:
+      - spark-master
+      - kafka-broker
+      - match-making-db
+    ports:
+      - "8081:8081"
+    environment:
+      - "SPARK_MASTER=spark://spark-master:7077"
+    networks:
+      - webnet
+
+networks:
+  webnet:
+    driver: bridge
