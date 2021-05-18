@@ -58,6 +58,6 @@ This is the setup repository for the [Meditation VR](https://github.com/meditati
 
 * `./ngrok http -subdomain=meditationvr 3000`
 
-## LICENSE
+## License
 
 * Check [LICENSE.md](https://github.com/meditationvr/compose/blob/master/LICENSE.md) for more details
