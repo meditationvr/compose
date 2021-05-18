@@ -60,4 +60,4 @@ This is the setup repository for the [Meditation VR](https://github.com/meditati
 
 ## LICENSE
 
-* Check [LICENSE.md](https://github.com/meditationvr/compose/master/LICENSE.md) for more details
+* Check [LICENSE.md](https://github.com/meditationvr/compose/blob/master/LICENSE.md) for more details
